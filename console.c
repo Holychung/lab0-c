@@ -76,6 +76,7 @@ static bool do_source_cmd(int argc, char *argv[]);
 static bool do_log_cmd(int argc, char *argv[]);
 static bool do_time_cmd(int argc, char *argv[]);
 static bool do_comment_cmd(int argc, char *argv[]);
+static bool do_hello(int argc, char *argv[]);
 
 static void init_in();
 
@@ -92,6 +93,7 @@ void init_cmd()
     err_cnt = 0;
     quit_flag = false;
 
+    add_cmd("hello", do_hello, "                | Print hello message");
     add_cmd("help", do_help_cmd, "                | Show documentation");
     add_cmd("option", do_option_cmd,
             " [name val]     | Display or set options");
@@ -431,6 +433,11 @@ static bool do_time_cmd(int argc, char *argv[])
     }
 
     return ok;
+}
+
+static bool do_hello(int argc, char *argv[])
+{
+    return (bool) printf("Hello, World\n");
 }
 
 /* Create new buffer for named file.
