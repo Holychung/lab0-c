@@ -40,19 +40,23 @@ bool q_insert_head(queue_t *q, char *s)
 {
     if (!q)
         return false;
-    list_ele_t *newh;
-    newh = malloc(sizeof(list_ele_t));
-    if (!newh)
+    list_ele_t *new;
+    new = malloc(sizeof(list_ele_t));
+    if (!new)
         return false;
     /* Allocate space for the string and copy it */
-    newh->value = malloc(sizeof(char) * (strlen(s) + 1));
-    memset(newh->value, '\0', strlen(s) + 1);
-    strncpy(newh->value, s, strlen(s));
+    new->value = malloc(sizeof(char) * (strlen(s) + 1));
+    if (new->value == NULL) {
+        free(new);
+        return false;
+    }
+    memset(new->value, '\0', strlen(s) + 1);
+    strncpy(new->value, s, strlen(s));
     /* Insert element to head */
-    newh->next = q->head;
-    q->head = newh;
+    new->next = q->head;
+    q->head = new;
     if (q->tail == NULL)
-        q->tail = newh;
+        q->tail = new;
 
     q->size += 1;
     return true;
@@ -67,10 +71,32 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    /* TODO: You need to write the complete code for this function */
-    /* Remember: It should operate in O(1) time */
-    /* TODO: Remove the above comment when you are about to implement. */
-    return false;
+    if (!q)
+        return false;
+    list_ele_t *new;
+    new = malloc(sizeof(list_ele_t));
+    if (!new)
+        return false;
+    /* Allocate space for the string and copy it */
+    new->value = malloc(sizeof(char) * (strlen(s) + 1));
+    if (new->value == NULL) {
+        free(new);
+        return false;
+    }
+    memset(new->value, '\0', strlen(s) + 1);
+    strncpy(new->value, s, strlen(s));
+    new->next = NULL;
+    /* Insert element to tail */
+    if (q->tail == NULL) {
+        q->tail = new;
+        q->head = new;
+    } else {
+        q->tail->next = new;
+        q->tail = new;
+    }
+
+    q->size += 1;
+    return true;
 }
 
 /*
@@ -83,9 +109,28 @@ bool q_insert_tail(queue_t *q, char *s)
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* TODO: You need to fix up this code. */
-    /* TODO: Remove the above comment when you are about to implement. */
-    q->head = q->head->next;
+    if (!q || q->size == 0)
+        return false;
+
+    /* Copy the removed string to *sp */
+    if (sp) {
+        size_t head_size = strlen(q->head->value);
+        size_t size = head_size > bufsize - 1 ? bufsize - 1 : head_size;
+        strncpy(sp, q->head->value, size);
+        sp[size] = '\0';
+    }
+
+    /* Remove head element */
+    list_ele_t *tmp = q->head;
+    q->head = tmp->next;
+    if (q->head == NULL) {
+        /* Queue is empty after removing */
+        q->tail = NULL;
+    }
+    free(tmp->value);
+    free(tmp);
+
+    q->size -= 1;
     return true;
 }
 
