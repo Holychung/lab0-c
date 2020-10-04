@@ -26,6 +26,16 @@ void q_free(queue_t *q)
 {
     /* TODO: How about freeing the list elements and the strings? */
     /* Free queue structure */
+    if (!q)
+        return;
+
+    list_ele_t *target = q->head;
+    while (target) {
+        q->head = target;
+        target = target->next;
+        free(q->head->value);
+        free(q->head);
+    }
     free(q);
 }
 
@@ -152,8 +162,66 @@ int q_size(queue_t *q)
  */
 void q_reverse(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q || q->size == 0 || q->size == 1)
+        return;
+
+    list_ele_t *prev_ele = NULL;
+    list_ele_t *current_ele = q->head;
+    list_ele_t *next_ele;
+    q->tail = q->head;
+    while (current_ele) {
+        next_ele = current_ele->next;
+        current_ele->next = prev_ele;
+        prev_ele = current_ele;
+        current_ele = next_ele;
+    }
+    q->head = prev_ele;
+}
+
+void merge_sort(list_ele_t **head)
+{
+    if (*head == NULL || (*head)->next == NULL)
+        return;
+
+    /* Partition */
+    list_ele_t *slow = *head;
+    list_ele_t *fast = (*head)->next;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    fast = slow->next;
+    slow->next = NULL;
+    slow = *head;
+
+    merge_sort(&slow);
+    merge_sort(&fast);
+
+    /* Start merge elements of queue in ascending order */
+    list_ele_t *prev;
+    if (strcmp(slow->value, fast->value) < 0) {
+        prev = slow;
+        slow = slow->next;
+    } else {
+        prev = fast;
+        fast = fast->next;
+    }
+    /* Find queue head */
+    *head = prev;
+    /* Merge elements of queue in ascending order */
+    while (slow && fast) {
+        if (strcmp(slow->value, fast->value) < 0) {
+            prev->next = slow;
+            prev = slow;
+            slow = slow->next;
+        } else {
+            prev->next = fast;
+            prev = fast;
+            fast = fast->next;
+        }
+    }
+    prev->next = slow ? slow : fast;
 }
 
 /*
@@ -163,6 +231,12 @@ void q_reverse(queue_t *q)
  */
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q || q->size == 0 || q->size == 1)
+        return;
+
+    merge_sort(&q->head);
+
+    /* Find queue tail */
+    while (q->tail->next)
+        q->tail = q->tail->next;
 }
